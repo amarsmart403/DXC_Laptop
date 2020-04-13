@@ -1,0 +1,332 @@
+{
+	"info": {
+		"_postman_id": "7f6a036a-8dbb-4ec8-b5ab-3a6ea0c491ef",
+		"name": "ELABS - 1",
+		"description": "Examples used for KT sessions with OOSS team (and others)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1 Add or Refresh repo to raffia",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "53699da8-4928-423a-b42a-a1334bad173e",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "4bd91559-2893-4903-99c6-c3c88919e0d5",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"postman.setEnvironmentVariable(\"repo_actionid\", jsonData.actionId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-dxc-inf-route-key",
+						"type": "text",
+						"value": "raffia~elab-1"
+					},
+					{
+						"key": "x-dxc-inf-customer",
+						"type": "text",
+						"value": "elab"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YXV0QXBpVXNlcjplNHJiQlhuVHhaSGk0RG9xSUNyTGhLUXZqaGg4Y29ERQ=="
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"actionName\": \"repo\",\n    \"actionParameters\": {\n        \"jwt\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6ImFjY2VzcyJ9.eyJ1c2VySWQiOiI1ZDUyMzYyODFmYzE2NTAwNTYyZmY5NjgiLCJBUEkiOnRydWUsInRva2VuX2lkIjoiNWQ1MjM5ZmQ4YmZlMzkxNTVlZWMyNGMwIiwiaWF0IjoxNTY1NjY5ODg1LCJhdWQiOiJodHRwczovL3lvdXJkb21haW4uY29tIiwiaXNzIjoiZmVhdGhlcnMiLCJzdWIiOiJhbm9ueW1vdXMifQ.x3b6iqZ3A5l0gqwtsNdTnLP6TzyvDV2DTr-uRFRuZ8g\",\n        \"name\": \"MMis-OS\",\n        \"giturl\": \"https://github.dxc.com/Ansible-Global/MMis-OS.git\",\n        \"branchtag\": \"master\",\n        \"gitapp\": \"dxc:raffiaro\",\n        \"batchmode\": true\n    },\n    \"actionVersion\": \"1.0\"\n}"
+				},
+				"url": {
+					"raw": "https://api.platformdxc-d0.com/aut4-dev/dxc/automation/R1/request",
+					"protocol": "https",
+					"host": [
+						"api",
+						"platformdxc-d0",
+						"com"
+					],
+					"path": [
+						"aut4-dev",
+						"dxc",
+						"automation",
+						"R1",
+						"request"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "2 Check repo result",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "53699da8-4928-423a-b42a-a1334bad173e",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-dxc-inf-route-key",
+						"type": "text",
+						"value": "raffia~elab-1"
+					},
+					{
+						"key": "x-dxc-inf-customer",
+						"type": "text",
+						"value": "elab"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YXV0QXBpVXNlcjplNHJiQlhuVHhaSGk0RG9xSUNyTGhLUXZqaGg4Y29ERQ=="
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"actionName\": \"repo-getqueue\",\n    \"actionParameters\": {\n    \t\"jwt\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6ImFjY2VzcyJ9.eyJ1c2VySWQiOiI1ZDUyMzYyODFmYzE2NTAwNTYyZmY5NjgiLCJBUEkiOnRydWUsInRva2VuX2lkIjoiNWQ1MjM5ZmQ4YmZlMzkxNTVlZWMyNGMwIiwiaWF0IjoxNTY1NjY5ODg1LCJhdWQiOiJodHRwczovL3lvdXJkb21haW4uY29tIiwiaXNzIjoiZmVhdGhlcnMiLCJzdWIiOiJhbm9ueW1vdXMifQ.x3b6iqZ3A5l0gqwtsNdTnLP6TzyvDV2DTr-uRFRuZ8g\",\n        \"id\": \"5d67a6c7d80efc001d7c1ae2\"\n       },\n    \"actionVersion\": \"1.0\"\n}"
+				},
+				"url": {
+					"raw": "https://api.platformdxc-d0.com/aut4-dev/dxc/automation/R1/request",
+					"protocol": "https",
+					"host": [
+						"api",
+						"platformdxc-d0",
+						"com"
+					],
+					"path": [
+						"aut4-dev",
+						"dxc",
+						"automation",
+						"R1",
+						"request"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "3 Run playbook",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "53699da8-4928-423a-b42a-a1334bad173e",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "a204eade-f0d7-4c90-9fc8-69fb31601e6e",
+						"exec": [
+							"var jsonData = JSON.parse(responseBody);",
+							"postman.setEnvironmentVariable(\"play_actionid\", jsonData.actionId);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-dxc-inf-route-key",
+						"type": "text",
+						"value": "raffia~ICI-100"
+					},
+					{
+						"key": "x-dxc-inf-customer",
+						"type": "text",
+						"value": "ICI"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YXV0QXBpVXNlcjplNHJiQlhuVHhaSGk0RG9xSUNyTGhLUXZqaGg4Y29ERQ=="
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"actionName\": \"raffia-play-run\",\n    \"actionParameters\": {\n        \"engine\": \"LOCAL\",\n        \"form\": {},\n        \"playbook\": \"MMIS-OS: Windows iSolve check Cluster Issue\",\n        \"targets\": [\n        \t\"10.5.62.89\"\n        ],\n      \"vault_opts\" : {\"secret_id\" : \"06121d66-b960-0eac-4e68-b6789168af74\"}  \n    },\n    \"actionVersion\": \"1.0\"\n}"
+				},
+				"url": {
+					"raw": "https://api.platformdxc-d0.com/aut4-dev/dxc/automation/R1/request",
+					"protocol": "https",
+					"host": [
+						"api",
+						"platformdxc-d0",
+						"com"
+					],
+					"path": [
+						"aut4-dev",
+						"dxc",
+						"automation",
+						"R1",
+						"request"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "4 Check playbook result",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "53699da8-4928-423a-b42a-a1334bad173e",
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-dxc-inf-route-key",
+						"type": "text",
+						"value": "raffia~ICI-100"
+					},
+					{
+						"key": "x-dxc-inf-customer",
+						"type": "text",
+						"value": "ICI"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YXV0QXBpVXNlcjplNHJiQlhuVHhaSGk0RG9xSUNyTGhLUXZqaGg4Y29ERQ=="
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"actionName\": \"raffia-play-getqueue\",\n    \"actionParameters\": {\n    \t\"engine\": \"LOCAL\",\n        \"id\": \"5d710683db441e00c6858c70\"\n    },\n    \"actionVersion\": \"1.0\"\n}"
+				},
+				"url": {
+					"raw": "https://api.platformdxc-d0.com/aut4-dev/dxc/automation/R1/request",
+					"protocol": "https",
+					"host": [
+						"api",
+						"platformdxc-d0",
+						"com"
+					],
+					"path": [
+						"aut4-dev",
+						"dxc",
+						"automation",
+						"R1",
+						"request"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "d0bbfacf-f3e6-474c-9aaa-38357edb8a8d",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "4398cd4c-a9b1-4272-bde1-d272e7f30a69",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "7f4d9dc2-9301-480d-947f-495f92cf8997",
+			"key": "BASICAUTH",
+			"value": "Basic YXV0QXBpVXNlcjpJWDF3T1gyczc1NXliT2I3V0RhcFpGcG5uVWF5d1dIQQ==",
+			"type": "string"
+		},
+		{
+			"id": "ad3a7c06-514a-4ec7-a571-25344056d0e2",
+			"key": "JWT",
+			"value": "\"eyJhbGciOiJIUzI1NiIsInR5cCI6ImFjY2VzcyJ9.eyJ1c2VySWQiOiI1YmUxOWEzMzZmYmU4NjAwNjU2MGMwZjYiLCJBUEkiOnRydWUsInRva2VuX2lkIjoiNWNjOTgzOGUzMzc1OGMxNDVhMjIzZTdlIiwiaWF0IjoxNTU2NzEwMjg2LCJhdWQiOiJodHRwczovL3lvdXJkb21haW4uY29tIiwiaXNzIjoiZmVhdGhlcnMiLCJzdWIiOiJhbm9ueW1vdXMifQ.ZmORIc1noh-6Wq-CPcLC60Pu_DFBCdrPES9MmTHWhbs\"",
+			"type": "string"
+		}
+	]
+}

@@ -1,0 +1,170 @@
+To create File and Folder
+New-Item -path "C:\Temp\sample" -ItemType Directory
+New-item -path "C:\Temp\sample\hosts.txt" -ItemType File
+
+To Copy File and Folder
+Copy-Item 'D:\temp\Test Folder' 'D:\temp\Test Folder1'
+Copy-Item 'D:\temp\Test Folder' -Destination 'D:\temp\Test Folder1'
+Copy-Item 'D:\temp\Test Folder\Test File.txt' 'D:\temp\Test Folder1\Test File1.txt'
+Copy-Item -Filter *.txt -Path 'D:\temp\Test Folder' -Recurse -Destination 'D:\temp\Test Folder1'
+
+To Delete File and Folder 
+Remove-Item 'D:\temp\Test Folder1'
+Remove-Item 'D:\temp\Test Folder' -Recurse
+Remove-Item 'D:\temp\Test Folder\test.txt'
+Remove-Item 'D:\temp\Test Folder' -Recurse
+
+To Move Folders and Files
+Move-Item D:\temp\Test D:\temp\Test1
+Move-Item D:\temp\Test D:\temp\Test1
+Move-Item D:\temp\Test\Test.txt D:\temp\Test1
+
+To rename Folder and File
+Rename-Item D:\temp\Test D:\temp\Test1
+Rename-Item D:\temp\Test\test.txt test1.txt
+
+To Get content from file
+Get-Content D:\temp\Test\test.txt
+(Get-Content D:\temp\test\test.txt).length
+
+To check folder and File existance
+Test-Path D:\temp\test
+Test-Path D:\temp\test\test.txt
+
+To check the date
+get-date 
+
+To adjust date 
+set-date -Date (Get-Date).AddDays(1)
+
+To substract date from current date
+set-date -Date (Get-Date).AddDays(-1)
+
+To get the time 
+Get-Date  9to get date and time)
+Get-Date -DisplayHint Time (to get the time)
+Get-Date -DisplayHint Date (to get only date)
+
+To adjust Time to 60 Min
+$timeToAdd = New-TimeSpan -Minutes +60
+set-date -adjust $timeToAdd
+
+To adjust Time to -60 Min
+$timeToAdd = New-TimeSpan -Minutes -60
+set-date -adjust $timeToAdd
+
+To create new file
+New-Item D:\temp\test\test.txt
+
+To add some data to the file 
+Set-Content D:\temp\test\test.txt 'Welcome to TutorialsPoint'
+
+To create xml file
+New-Item D:\temp\test\test.xml -ItemType File
+Set-Content D:\temp\test\test.xml '<title>Welcome to TutorialsPoint</title>'
+
+To create CSV file
+New-Item C:\Users\amodepalli\Desktop\PwerShell\test.csv -ItemType File
+Set-Content C:\Users\amodepalli\Desktop\PwerShell\test.csv 'Mahesh,Suresh,Ramesh'
+
+To create html file 
+New-Item D:\temp\test\test.html -ItemType File
+Set-Content D:\temp\test\test.html '<html>Welcome to TutorialsPoint</html>'
+
+To erase data from a file
+Clear-Content D:\temp\test\test.txt
+
+To append text to file
+set-content C:\Users\amodepalli\Desktop\PwerShell\test.txt (for the first time)
+Add-Content C:\Users\amodepalli\Desktop\PwerShell\test.txt 'World!'
+
+To get unique data from the file 
+$list = "one","two","two","three","four","five"
+$list | sort | get-unique
+
+To check the no.lines,no.words and total words 
+get-content C:\Users\amodepalli\Desktop\PwerShell\test.txt | measure-object -character -line -word
+
+Tocheck the no.of subfolders in the directory
+Get-ChildItem C:\Users\amodepalli\Desktop\PwerShell\ | Measure-Object
+sample output>>
+Count    : 19
+Average  : 
+Sum      : 
+Maximum  : 
+Minimum  : 
+Property : 
+>>
+
+To che ck the difference between 2 files we use cmdlet
+Compare-Object -ReferenceObject $(Get-Content C:\Users\amodepalli\Desktop\PwerShell\test.txt) -DifferenceObject $(Get-Content C:\Users\amodepalli\Desktop\PwerShell\test1.txt)
+
+To see each service name and details 
+Get-Service | Format-List
+
+To display the files in sorting order like lhs and rhs side
+$A = Get-ChildItem C:\Users\amodepalli\Desktop\PwerShell\temp\*.txt
+Format-Wide -InputObject $A
+
+To get all stopped services 
+Get-Service | Where-Object {$_.Status -eq "Stopped"}
+
+To get all process names starting with letter P
+Get-Process | Where-Object {$_.ProcessName -Match "^p.*"}
+
+To get all process names end with letter P
+Get-Process | Where-Object {$_.ProcessName -Match "p$"}
+
+To get the child directories names from the parent directory 
+Get-ChildItem "C:\Users\amodepalli\Desktop\PwerShell\temp" -Name 
+
+Module to 
+1000,2000,3000,5000,10000,20000 | ForEach-Object -Process {$_/1000}
+"Microsoft.PowerShell.Core", "Microsoft.PowerShell.Host" | ForEach-Object {$_.Split(".")}
+
+To add delay for 15 seconds 
+Start-Sleep -s 15
+To add delay for 500 mili seconds 
+Start-Sleep -m 500
+
+To Read the input from user and store it in variable 
+$choice = Read-Host "Please put your choice"
+
+To select perticular property and list last 5 process
+Get-Process | Select-Object -Property ProcessName, Id, WS -last 5
+To select perticular property and list first 5 process
+Get-Process | Select-Object -Property ProcessName, Id, WS -first 5
+
+To select unique data
+"a","b","c","a","a","a" | Select-Object -Unique
+
+To sort data and display last 5 process  
+Get-Process | Sort-Object -Property WS | Select-Object -Last 5
+
+To sort data in order 
+"d","e","c","a","b","f" | Sort-Object
+
+To display warning message 
+Write-Warning  "Test Warning"
+
+To write some data and display them in colours 
+Write-Host (2,4,6,8,10,12) -Separator ", -> " -ForegroundColor DarkGreen -BackgroundColor White
+
+To open file directly
+Invoke-Item "C:\Users\amodepalli\Desktop\IAF.txt"
+
+To invoke the expression 
+$Command = 'Get-Process'
+$Command
+Get-Process
+Invoke-Expression $Command
+
+To measure the execution time of the command or script 
+Measure-Command { Get-EventLog "Windows PowerShell" }
+
+To invoke last run command 
+Invoke-History
+
+To get the history of the commands ran
+get-history
+

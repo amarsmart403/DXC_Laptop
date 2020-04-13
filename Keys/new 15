@@ -1,0 +1,82 @@
+#!/usr/bin/python
+
+print('Set variables.')
+host_name = 'oracle.internal.com'
+admin_user = 'weblogic'
+admin_password = 'weblogic1'
+admin_port = '7001'
+mw_home = '/u01/app/oracle/middleware'
+domain_name = 'WlsDomain'
+domain_home = mw_home + '/user_projects/domains/' + domain_name   # Check path is correct.
+wl_home = mw_home + '/wlserver_10.3'
+db_url = 'jdbc:oracle:thin:@oracle.internal.com:1521/ORA11G.oracle.com'
+db_user = 'sys'   
+db_password = 'oracle'
+db_driver = 'oracle.jdbc.OracleDriver'
+nm_name = 'LocalWlsMachine'
+nm_port = 5556
+ds_name = 'LocalSvcTblDataSource'
+
+print('Create domain (' + domain_name + ').')
+print('Load templates.')
+readTemplate(wl_home + '/common/templates/domains/wls.jar')
+
+#addTemplate(mw_home + '/oracle_common/common/templates/applications/jrf_template_11.1.1.jar')
+#addTemplate(mw_home + '/oracle_common/common/templates/applications/oracle.em_11_1_1_0_0_template.jar')
+
+
+print('AdminServer settings.')
+cd('/Security/base_domain/User/' + admin_user)
+cmo.setPassword(weblogic1)
+cd('/Server/AdminServer')
+cmo.setName('AdminServer')
+cmo.setListenPort(int(admin_port))
+cmo.setListenAddress(host_name)
+
+print('Create data source.')
+cd('/')
+create(ds_name,'JDBCSystemResource');
+cd('/JDBCSystemResource/' + ds_name + '/JdbcResource/' + ds_name + '/JDBCDriverParams/NO_NAME_0')
+create('NO_NAME_0', 'JDBCDriverParams')
+cd('JDBCDriverParams/NO_NAME_0')
+cmo.setPasswordEncrypted(db_password)
+cmo.setUrl(db_url)
+cmo.setDriverName(db_driver)
+create('NO_NAME_0', 'Properties')
+cd('Properties/NO_NAME_0')
+create('user', 'Property')
+cd('Property/user')
+cmo.setValue(db_user)
+
+
+print('Create node manager.')
+cd('/')
+machine = create(nm_name, 'UnixMachine')
+cd('Machines/' + nm_name)
+create(nm_name, 'NodeManager')
+cd('NodeManager/' + nm_name)
+set('ListenAddress', host_name)
+set('ListenPort', int(nm_port))
+
+print('Associate Node Manager with servers.')
+cd('/Servers/AdminServer')
+cmo.setMachine(machine)
+cd('/Servers/wls_server1')
+cmo.setMachine(machine)
+
+print('wls_server1 settings')
+cd('/Servers/wls_server1')
+cmo.setListenAddress(host_name)
+cmo.setListenPort(int(odi_port))
+
+#getDatabaseDefaults()
+
+print('Run in production mode.')
+setOption('ServerStartMode','prod')
+
+print('Write the domain and close the template.')
+setOption('OverwriteDomain', 'true')
+writeDomain(domain_home)
+closeTemplate()
+
+exit()

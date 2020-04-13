@@ -1,0 +1,400 @@
+{
+	"info": {
+		"_postman_id": "af65b3b4-849b-411b-bc12-eb91be4a16a8",
+		"name": "vLabs 1700 Raffia",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get Vault Secret",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "x-dxc-inf-route-key",
+						"value": "Vault~GTC1-GBP-TEST-1700",
+						"type": "text"
+					},
+					{
+						"key": "x-dxc-inf-customer",
+						"value": "GTC1-GBP-TEST",
+						"type": "text"
+					},
+					{
+						"key": "Authorization",
+						"value": "Basic YXV0QXBpVXNlcjplNHJiQlhuVHhaSGk0RG9xSUNyTGhLUXZqaGg4Y29ERQ==",
+						"type": "text"
+					},
+					{
+						"key": "X-Vault-Token",
+						"value": "s.mBsV470bmJ0DxzYa8orYmxYt",
+						"type": "text"
+					},
+					{
+						"key": "x-dxc-inf-raw-response",
+						"value": "true",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://api.platformdxc-d0.com/vau1-dev/dxc/vault/R1/auth/approle/role/raffia/secret-id",
+					"protocol": "https",
+					"host": [
+						"api",
+						"platformdxc-d0",
+						"com"
+					],
+					"path": [
+						"vau1-dev",
+						"dxc",
+						"vault",
+						"R1",
+						"auth",
+						"approle",
+						"role",
+						"raffia",
+						"secret-id"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Run Playbook",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-dxc-inf-route-key",
+						"type": "text",
+						"value": "raffia~GTC1-GBP-TEST-1700"
+					},
+					{
+						"key": "x-dxc-inf-customer",
+						"type": "text",
+						"value": "GTC1-GBP-TEST"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YXV0QXBpVXNlcjplNHJiQlhuVHhaSGk0RG9xSUNyTGhLUXZqaGg4Y29ERQ=="
+					},
+					{
+						"key": "x-dxc-inf-raw-response",
+						"type": "text",
+						"value": "true"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"actionName\": \"raffia-play-run\",\n  \"actionParameters\": {\n    \"engine\": \"LOCAL\",\n    \"form\": {\"\":\"\"},\n    \"playbook\": \"MMIS-OS: Unix iSolve SystemDown\",\n    \"targets\": [\n      \"10.165.189.148\"\n    ],\n    \"vault_opts\": {\n      \"secret_id\": \"ad481a06-49cb-5ac9-c45d-1f41f36761b6\"\n    }\n  },\n  \"actionVersion\": \"1.0\"\n}"
+				},
+				"url": {
+					"raw": "https://api.platformdxc-d0.com/aut4-dev/dxc/automation/R1/request",
+					"protocol": "https",
+					"host": [
+						"api",
+						"platformdxc-d0",
+						"com"
+					],
+					"path": [
+						"aut4-dev",
+						"dxc",
+						"automation",
+						"R1",
+						"request"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check Playbook Result",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "accept",
+						"type": "text",
+						"value": " application/json"
+					},
+					{
+						"key": "x-dxc-inf-route-key",
+						"type": "text",
+						"value": "raffia~GTC1-GBP-TEST-1700"
+					},
+					{
+						"key": "x-dxc-inf-customer",
+						"type": "text",
+						"value": "GTC1-GBP-TEST"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YXV0QXBpVXNlcjplNHJiQlhuVHhaSGk0RG9xSUNyTGhLUXZqaGg4Y29ERQ=="
+					},
+					{
+						"key": "x-dxc-inf-raw-response",
+						"type": "text",
+						"value": " true"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"actionName\": \"raffia-play-getqueue\",\n    \"actionParameters\": {\n        \"engine\": \"LOCAL\",\n        \"id\": \"5da566e558bfae00be307d92\"\n    },\n    \"actionVersion\": \"1.0\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.platformdxc-d0.com/aut4-dev/dxc/automation/R1/request/",
+					"protocol": "https",
+					"host": [
+						"api",
+						"platformdxc-d0",
+						"com"
+					],
+					"path": [
+						"aut4-dev",
+						"dxc",
+						"automation",
+						"R1",
+						"request",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Raffia Repo Refresh 1700",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-dxc-inf-route-key",
+						"type": "text",
+						"value": "raffia~GTC1-GBP-TEST-1700"
+					},
+					{
+						"key": "x-dxc-inf-customer",
+						"type": "text",
+						"value": "GTC1-GBP-TEST"
+					},
+					{
+						"key": "x-dxc-inf-raw-response",
+						"type": "text",
+						"value": "true"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YXV0QXBpVXNlcjplNHJiQlhuVHhaSGk0RG9xSUNyTGhLUXZqaGg4Y29ERQ=="
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"actionName\": \"repo\",\n    \"actionParameters\": {\n        \"jwt\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6ImFjY2VzcyJ9.eyJ1c2VySWQiOiI1ZDgzY2FiMDdlMjg3YTAwNTg3N2Y2MWMiLCJBUEkiOnRydWUsInRva2VuX2lkIjoiNWQ4YzIxYzhmMzY2MjYxNGVhYWQ3NjM4IiwiaWF0IjoxNTY5NDY0Nzc2LCJleHAiOjE2MDEwODcxNzQsImF1ZCI6Imh0dHBzOi8veW91cmRvbWFpbi5jb20iLCJpc3MiOiJmZWF0aGVycyIsInN1YiI6ImFub255bW91cyJ9.Qq7-WZboVEPHtF2dJVNzxxgP_zdXTZqyLciAV2AZDAc\",\n        \"name\": \"MMis-OS\",\n        \"giturl\": \"https://github.dxc.com/Ansible-Global/MMis-OS.git\",\n        \"branchtag\": \"master\",\n        \"gitapp\": \"dxc:raffiaro\",\n        \"batchmode\": true\n    },\n    \"actionVersion\": \"1.0\"\n}"
+				},
+				"url": {
+					"raw": "https://api.platformdxc-d0.com/aut4-dev/dxc/automation/R1/request",
+					"protocol": "https",
+					"host": [
+						"api",
+						"platformdxc-d0",
+						"com"
+					],
+					"path": [
+						"aut4-dev",
+						"dxc",
+						"automation",
+						"R1",
+						"request"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Raffia Repo Refresh 1700 Check",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"type": "text",
+						"value": "application/json"
+					},
+					{
+						"key": "x-dxc-inf-route-key",
+						"type": "text",
+						"value": "raffia~GTC1-GBP-TEST-1700"
+					},
+					{
+						"key": "x-dxc-inf-customer",
+						"type": "text",
+						"value": "GTC1-GBP-TEST"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YXV0QXBpVXNlcjplNHJiQlhuVHhaSGk0RG9xSUNyTGhLUXZqaGg4Y29ERQ=="
+					},
+					{
+						"key": "x-dxc-inf-raw-response",
+						"type": "text",
+						"value": "true"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"actionName\": \"repo-getqueue\",\n    \"actionParameters\": {\n    \t\"jwt\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6ImFjY2VzcyJ9.eyJ1c2VySWQiOiI1ZDgzY2FiMDdlMjg3YTAwNTg3N2Y2MWMiLCJBUEkiOnRydWUsInRva2VuX2lkIjoiNWQ4YzIxYzhmMzY2MjYxNGVhYWQ3NjM4IiwiaWF0IjoxNTY5NDY0Nzc2LCJleHAiOjE2MDEwODcxNzQsImF1ZCI6Imh0dHBzOi8veW91cmRvbWFpbi5jb20iLCJpc3MiOiJmZWF0aGVycyIsInN1YiI6ImFub255bW91cyJ9.Qq7-WZboVEPHtF2dJVNzxxgP_zdXTZqyLciAV2AZDAc\",\n        \"id\": \"5da8a4273d9648001084645e\"\n       },\n    \"actionVersion\": \"1.0\"\n}"
+				},
+				"url": {
+					"raw": "https://api.platformdxc-d0.com/aut4-dev/dxc/automation/R1/request",
+					"protocol": "https",
+					"host": [
+						"api",
+						"platformdxc-d0",
+						"com"
+					],
+					"path": [
+						"aut4-dev",
+						"dxc",
+						"automation",
+						"R1",
+						"request"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetInventory",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "accept",
+						"type": "text",
+						"value": " application/json"
+					},
+					{
+						"key": "",
+						"type": "text",
+						"value": "",
+						"disabled": true
+					},
+					{
+						"key": "x-dxc-inf-route-key",
+						"type": "text",
+						"value": "raffia~GTC1-GBP-TEST-1700"
+					},
+					{
+						"key": "x-dxc-inf-customer",
+						"type": "text",
+						"value": "GTC1-GBP-TEST"
+					},
+					{
+						"key": "Authorization",
+						"type": "text",
+						"value": "Basic YXV0QXBpVXNlcjplNHJiQlhuVHhaSGk0RG9xSUNyTGhLUXZqaGg4Y29ERQ=="
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"actionName\": \"raffia-play-getinv\",\n    \"actionParameters\": {\n    \t\"query\": { \n    \t\t\"$limit\": \"25\", \n    \t\t\"$skip\": \"0\"\n    \t}\n    },\n    \"actionVersion\": \"1.0\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://api.platformdxc-d0.com/aut4-dev/dxc/automation/R1/request",
+					"protocol": "https",
+					"host": [
+						"api",
+						"platformdxc-d0",
+						"com"
+					],
+					"path": [
+						"aut4-dev",
+						"dxc",
+						"automation",
+						"R1",
+						"request"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "25e2c14d-cf82-44e5-983c-296c46ee99c7",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "3f112b3e-840c-4387-8740-422752b7734e",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}

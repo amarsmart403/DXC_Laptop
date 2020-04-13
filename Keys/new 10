@@ -1,0 +1,133 @@
+sudo yum install epel-release -y
+sudo yum -y update
+sudo yum -y install ansible
+sudo yum -y install python-pip pip
+pip install pywinrm (or)
+yum install python-winrm
+
+https://grokbase.com/t/gg/ansible-project/161pmk5ryg/remote-windows-batch-script-says-completed-successful-but-did-not-work
+https://www.ibm.com/support/pages/installation-manager-and-packaging-utility-download-documents
+https://www.ibm.com/support/knowledgecenter/en/SSEQTP_8.5.5/com.ibm.websphere.installation.base.doc/ae/cins_repositories.html
+
+- name: sigh
+  win_command: powershell.exe -executionpolicy bypass -noninteractive -nologo -file "myscript.ps1" 
+  become: yes
+  become_user: DOMAIN\someuser
+  become_password: someuserpassword
+  become_method: runas
+  
+  - name: Run ps1 script in privileged mode
+  hosts: "{{ my_hosts }}"
+  become_method: runas
+
+  vars:
+    ansible_become_password: mysupersecretpasswrod
+
+  tasks:
+    - win_shell: '.\myscript.ps1'
+      become: yes
+      become_user: Administrator
+9.0:
+com.ibm.websphere.ILAN.v90_9.0.5001.20190828_0616
+https://artifactory.csc.com/artifactory/installers/IBM/was/was.repo-9000.ILAN.zip
+com.ibm.java.jdk.v8_8.0.5041.20190924_1031
+https://artifactory.csc.com/artifactory/installers/IBM/sdk/sdk.repo-8050.java8.win32_x86_64.zip
+
+8.5:
+com.ibm.websphere.DEVELOPERSILAN.v85_8.5.5016.20190801_0951
+https://artifactory.csc.com/artifactory/installers/IBM/was/was.repo-8550.DEVELOPERSILAN.zip
+com.ibm.websphere.IBMJAVA.v70_7.0.10045.20190801_0005
+https://artifactory.csc.com/artifactory/installers/IBM/sdk/sdk.repo-7010.java7.win32_x86_64.zip
+
+
+---
+- name: Get the installed packages
+  win_command:
+    '"{{ ibmim_install_location }}\tools\imcl.exe" listInstalledPackages'
+  ignore_errors: true
+  register: installed
+
+- name: print the output
+  debug:
+    msg: "{{installed}}"
+
+- name: was_type
+  set_fact:
+    was_type: >
+      {{ installed.stdout|regex_search(was_type_regex, multiline=True)|regex_search("[A-Z]+$") }}
+  ignore_errors: true
+  register: out1
+  when: installed is defined
+
+- name: print the output
+  debug:
+    msg: "{{out1}}"
+
+- name: Get the version of the installed WAS
+  set_fact:
+    installed_version: >
+      {{ installed.stdout|regex_search(was_imcl_package_regex, multiline=True)|regex_search("{{was_type}}.[0-9]+.[0-9]$") }}
+  ignore_errors: true
+  register: out
+  when: installed is defined
+
+- name: print the output
+  debug:
+    msg: "{{out}}"
+~
+
+- name: Create temperory log file
+  win_file: path="{{tmp_location}}\IIM_install.log" state=touch
+  when: install_folder.stat.exists == false
+  
+- name: Run silent install IIM package to {{ ibmim_install_location }}
+  raw: '{{ tmp_location }}\ibmim\installc.exe -log "{{ tmp_location }}\IIM_install.log" -acceptLicense'
+  when: install_folder.stat.exists == false
+  
+  
+  - name: Download the WAS server
+  hosts: win
+  tasks:
+  - name: Create Temp directory
+	win_file: path='C:\Windows\Temp\' state=directory mode=0755
+		
+  - name: Download local copy of WAS installer
+	win_get_url:
+	 url: 'https://artifactory.csc.com/artifactory/installers/IBM/was/was.repo-8550.DEVELOPERSILAN.zip'
+	 dest: 'C:\Windows\Temp\WAS.zip'
+	 url_username: "installers"
+	 url_password: "kT%e@3U8W"
+		
+  - name: Extract The IIM package to ibmim Folder
+	win_unzip:
+	 src: 'C:\Windows\Temp\WAS.zip'
+	 dest: 'C:\Windows\Temp\WAS'
+	 
+- name: Download IIM
+  hosts: win
+  tasks:
+    - name: Create Temp directory
+      win_file: path=C:\Windows\Temp\WAS state=directory mode=0755
+    - name: Download local copy of WAS installer
+	  win_get_url:
+	    url: 'https://artifactory.csc.com/artifactory/installers/IBM/was/was.repo-8550.DEVELOPERSILAN.zip'
+	    dest: 'C:\Windows\Temp\WAS\WAS8.zip'
+	    url_username: "installers"
+	    url_password: "kT%e@3U8W"
+	- name: Extract The IIM package to ibmim Folder
+	  win_unzip:
+	    src: 'C:\Windows\Temp\WAS\WAS8.zip'
+	    dest: 'C:\Windows\Temp\WAS\was8'
+    - name: Download the package
+      win_get_url:
+        url: 'https://artifactory.csc.com/artifactory/installers/IBM/sdk/sdk.repo-7010.java7.win32_x86_64.zip'
+        dest: 'C:\Windows\Temp\WAS\java7.zip'
+        url_username: 'installers'
+        url_password: 'kT%e@3U8W'
+	
+	- name: Extract The Java package to WAS Folder
+      win_unzip:
+        src: 'C:\Windows\Temp\WAS\java7.zip'
+        dest: 'C:\Windows\Temp\WAS\jdk7'
+    
+
