@@ -1,0 +1,883 @@
+Folder create >>
+
+#!/bin/ksh
+
+LOG_FILE=/tmp/log/Carrier.log
+USER_GROUP=$(id -nG ${USER} | tr ' ' '\n' | grep 'sftp')
+ALL_CARRIERS=( Altus BCBSMA BMCHP CeltiCare CMS DeltaDental FCHP Guardian HNE HPHC MetLife Minuteman NHP NWH Tufts UHC )
+ALL_TPS=( 820 834 999 )
+RETURN_CODE=''
+
+echo "The Carriers script is running, TIME=$(date), USER=${USER}, USER_GROUP=${USER_GROUP}" >> ${LOG_FILE}
+
+for CARRIER in ${ALL_CARRIERS[@]}
+do
+        for TPS in ${ALL_TPS[@]}
+        do
+                cd ~/tradingPartnerRoot/${CARRIER}/${TPS}
+                RETURN_CODE=$?
+
+                if [ $RETURN_CODE -eq 0 ]
+                then
+                        echo " ---- Working in $(pwd) ---- " >>${LOG_FILE}
+
+                        if [[ ! -d ./X12out_archive_final && -d ./X12out_archive ]]
+                        then
+                                mkdir -v X12out_archive_final >> ${LOG_FILE}
+                                echo $?
+                                chmod -v 2775 X12out_archive_final >> ${LOG_FILE}
+                                echo $?
+                                chgrp -hv ${USER_GROUP} X12out_archive_final >> ${LOG_FILE}
+                                echo $?
+                                echo "Created X12out_archive_final in $(pwd) " >> ${LOG_FILE}
+                        else
+                                echo "No need to create X12out_archive_final directory in $(pwd) " >> ${LOG_FILE}
+                        fi
+                fi
+        done
+ done
+
+to deploy >>
+
+#!/bin/ksh
+
+
+. ~/.profile
+
+if [[ -z ${JAVA_HOME} || ! -r ${JAVA_HOME} ]] ;
+then
+echo " JAVA_HOME is not set or is not readable. "
+exit
+fi
+
+if [ ! -d $HOME/tmp ]
+then
+        mkdir $HOME/tmp
+fi
+if [ ! -d $HOME/log ]
+then
+        mkdir $HOME/log
+fi
+
+DESTDIR=$J_HOME
+LOGFILE=$HOME/log/midtier.log
+ZIPLOC=$HOME/installers
+HOMEDIR=$J_HOME
+BINDIR=$HOMEDIR/bin
+INSTALLDIR=$HOME/tmp/*ller/bin
+
+JBOSS_HOME=$HOMEDIR/jboss-as-7.1.3.Final
+export JBOSS_HOME
+
+# CHECK FOR SPECIAL INSTRUCTIONS IN README.txt FILE  (2017 11 01)
+if [ -r ~/bin/README.txt ]; then
+  read ans0?"
+
+#######################################################################################
+#######################################################################################
+####   Special instructions and/or concerns are going to be displayed below.
+####   After displaying this information you will be required to acknowledge your
+####   compliance before the installation can proceed.
+####
+####   enter 'c' to continue and display the information.
+####   your response is: "
+
+while [ "${ans0}" != "c" ]
+do
+  read ans0?"enter 'c' to continue and display this information:  "
+done
+
+  more ~/bin/README.txt
+  ans0="4"
+  read ans0?"
+
+#######################################################################################
+#######################################################################################
+####   Have you resolved all issues and questions described in the README file?
+####   enter 'y' to continue with the installation
+####   enter 'n' to abort the installation
+####   your response is: "
+
+if  [ "${ans0}" = "y" ]; then
+    mt_admin=$( who am i | awk '{print$1}' )
+    msg="####      Proceeding with installation per ${mt_admin} "
+    echo "####      Proceeding with installation per ${mt_admin} "
+    abort=FALSE
+  else
+    msg="####      Aborting installation. Need to resolve issues described above.  "
+    echo "####      Aborting installation. Need to resolve issues described above.  "
+    abort=TRUE
+  fi
+
+  echo "#######################################################################################
+#######################################################################################
+####      README FILE  ---------------------------      Beginning" >>  ${LOGFILE}
+  cat  ~/bin/README.txt  >>  ${LOGFILE}
+  echo "
+#######################################################################################
+####      README FILE  ---------------------------      End of File
+" >>  ${LOGFILE}
+
+  echo ${msg}  >>  ${LOGFILE}
+  echo "#######################################################################################" >>  ${LOGFILE}
+  echo "#######################################################################################" >>  ${LOGFILE}
+
+if [ "${abort}" = "TRUE" ]; then
+    #cat ${install_log} | mail -s "ERROR: ${USER:-USER_undefined} ${progname} log at ${run_dtm} ${HOST} " ${install_dl}
+    exit
+  fi
+
+fi
+
+echo "################################################"
+echo "Starting to install the middle tier for $DESTDIR"
+echo "################################################"
+echo "################################################" > $LOGFILE
+echo "Starting to install the middle tier for $DESTDIR" >> $LOGFILE
+echo "################################################" >> $LOGFILE
+
+# Shutdown the midtier and remove the files
+echo "1. Shutting down current instance of middle tier"
+echo "1. Shutting down current instance of middle tier" >> $LOGFILE
+echo " " >> $LOGFILE
+cd $BINDIR
+$BINDIR/stopServer.sh
+
+# Remove previous installer
+echo " " >> $LOGFILE
+echo " " >> $LOGFILE
+echo "2. Removing previous install files"
+echo "2. Removing previous install files" >> $LOGFILE
+echo " " >> $LOGFILE
+rm -Rf $HOME/tmp/*ller >> $LOGFILE
+echo " " >> $LOGFILE
+echo " " >> $LOGFILE
+echo "removed previous installer at $HOME/tmp/*ller"
+echo "removed previous installer at $HOME/tmp/*ller" >> $LOGFILE
+
+# Get the latest zip file
+echo "3. Getting the list of zip files available in $ZIPLOC"
+echo "3. Getting the list of zip files available in $ZIPLOC" >> $LOGFILE
+echo " " >> $LOGFILE
+ls -lt $ZIPLOC/diamond-installer.zip
+ls -lt $ZIPLOC/diamond-installer.zip >> $LOGFILE
+echo " " >> $LOGFILE
+
+FILELIST=`ls -t $ZIPLOC/diamond-installer.zip`
+cd $ZIPLOC
+for ZIPFILE in $FILELIST
+do
+  echo "Copying $ZIPFILE to $HOME/tmp"
+  echo "Copying $ZIPFILE to $HOME/tmp" >> $LOGFILE
+  echo " " >> $LOGFILE
+  cp $ZIPFILE $HOME/tmp/
+  break
+done
+
+echo " " >> $LOGFILE
+echo " " >> $LOGFILE
+
+# Unzip the installer and prepare for install
+echo "4. Unzipping the installer files..."
+echo "4. Unzipping the installer files..." >> $LOGFILE
+cd $HOME/tmp/
+unzip diamond-installer.zip >> $LOGFILE
+rm diamond-installer.zip >> $LOGFILE
+chmod -R 777 *aller >> $LOGFILE
+ls -ld *aller
+v=$(ls -ld *aller | awk '{print $9}')
+echo "$v build installed -->  $(date)" >> ~/version_midtier.txt
+echo "OverLaying the installer's properties files..."
+echo "OverLaying the installer's properties files..." >> $LOGFILE
+cp $HOME/config/install.properties *aller/bin/install.properties >> $LOGFILE
+echo " " >> $LOGFILE
+echo " " >> $LOGFILE
+
+echo "Shut down middle tier and will now remove old files"
+echo "Shut down middle tier and will now remove old files" >> $LOGFILE
+echo " " >> $LOGFILE
+echo " " >> $LOGFILE
+echo "5. Remove current installed files"
+echo "5. Remove current installed files" >> $LOGFILE
+echo " " >> $LOGFILE
+cd $HOMEDIR
+rm -Rf $HOMEDIR/* >>$LOGFILE
+echo " " >>$LOGFILE
+echo " " >>$LOGFILE
+
+# Install middle tier
+echo "6. Install the middle tier"
+echo "6. Install the middle tier" >> $LOGFILE
+echo " " >> $LOGFILE
+cd $INSTALLDIR
+pwd
+pwd >> $LOGFILE
+$INSTALLDIR/install.sh >> $LOGFILE
+echo " " >>$LOGFILE
+echo " " >>$LOGFILE
+
+# Setup Config
+echo "OverLaying the build's properties files..."
+echo "OverLaying the build's properties files..." >> $LOGFILE
+cd $HOME
+pwd
+pwd >> $LOGFILE
+cp -v $HOME/config/myConfig.properties $HOMEDIR/config/myConfig.properties >> $LOGFILE
+
+## upd-fms.sh content
+echo >> $LOGFILE
+#cp -v $HOME/config/standalone-full.xml $J_HOME/jboss-as-7.1.3.Final/standalone/configuration/ >> $LOGFILE
+cp -rv $HOME/config/certs/ $J_HOME/jboss-as-7.1.3.Final/standalone/configuration/ >> $LOGFILE
+cp -rv $HOME/config/diamondLicense.* $J_HOME/license/ >> $LOGFILE
+#cp -v $HOME/config/build_server_include.xml $J_HOME/build/jboss/ >> $LOGFILE
+#cp -v $HOME/config/myBuild.properties $J_HOME/build/ >> $LOGFILE
+>> $LOGFILE
+## cd $HOME/config
+## ./upd-fms.sh
+
+cd $HOMEDIR
+chmod -R 775 ECRTP
+
+##Secure access to JMX console
+echo "Securing Access to JMX Console..."
+echo "Securing Access to JMX Console..." >> $LOGFILE
+cd $BINDIR
+pwd
+pwd >> $LOGFILE
+$BINDIR/configJBossUsers.sh >>$LOGFILE
+sleep 20
+
+# Startup middle tier
+echo "7. Startup the middle tier"
+echo "7. Startup the middle tier" >> $LOGFILE
+echo " " >>$LOGFILE
+cd $HOMEDIR/bin
+#$HOMEDIR/bin/startServerBackground.sh
+
+#MAIL NOT WORKING# print "Midtier is up for $inst" | mailx -s "Midtier Availability" "DL-Xcelys-CM-Apps@dell.com"
+
+echo "#########################################################"
+echo "Job Complete"
+echo "#########################################################"
+echo "#########################################################" >> $LOGFILE
+echo "Job Complete" >> $LOGFILE
+echo "#########################################################" >> $LOGFILE
+
+to get status of Job >>
+
+## Author : Venkatrami Reddy, ASP MT Team.
+
+#!/bin/ksh
+File_Not_Exist=85
+TP_Root=/apps/cca/ccc/fmsccc2/tradingPartnerRoot/FMS
+#carrier=FMS
+EFT_Dir=EDIout
+EFT_Archive_Dir=archive
+#search_date=`date +'%m%d%Y`
+#search_date=`date -d "yesterday" '+%m%d%Y'`
+EFT_File=`ls -tr ${TP_Root}/${EFT_Dir}/EFT_*.txt | tail -1`
+
+if [ -z ${EFT_File} ]; then
+
+echo -e "\v##### Today's EFT file is not available in EDIout directory, you may check it in archive ######\v"
+
+exit $File_Not_Exist
+
+else
+
+EFT_File_List=`ls -l ${EFT_File}`
+##if [ `ls ${EFT_File} | wc -l`
+EFT_File_Size=`ls -lh ${EFT_File} | awk '{print $5}'`
+
+echo -e "\v##################### DAILY EFT FILE LEVEL VALIDATION #########################"
+
+## echo -e "Today's EFT Job has been Completed, and also EFT file is available in ${TP_Root}/${EFT_Dir}\n"
+echo -e "\vToday's EFT Extract Job has been Completed and EFT Extract file is:\n${EFT_File_List}\n\nFile Size >> ${EFT_File_Size}\n"
+
+## echo -e "##################### DAILY EFT FILE LEVEL VALIDATION ######################### \v"
+
+echo -e "Now, We are validating the Today's EFT Extract File...\n"
+
+echo "Step 1) Checking the Duplicates in Today's EFT File..."
+
+sleep 2
+
+#duplicates=`grep ^6 ${TP_Root}/${EFT_Dir}/${EFT_File} | sort | uniq -d`
+duplicates=`grep ^6 ${EFT_File} | cut -c4-86 | sort | uniq -D | uniq -c`
+Two_Pay_Count=$( grep ^6 ${EFT_File} | cut -c4-86 | sort | uniq -D | uniq -c | awk '{print$1}' | grep ^2 | wc -l )
+Three_Pay_Count=$( grep ^6 ${EFT_File} | cut -c4-86 | sort | uniq -D | uniq -c | awk '{print$1}' | grep ^3 | wc -l )
+Four_Pay_Count=$( grep ^6 ${EFT_File} | cut -c4-86 | sort | uniq -D | uniq -c | awk '{print$1}' | grep ^4 | wc -l )
+Five_Pay_Count=$( grep ^6 ${EFT_File} | cut -c4-86 | sort | uniq -D | uniq -c | awk '{print$1}' | grep ^5 | wc -l )
+duplicate_count=`grep ^6 ${EFT_File} | cut -c4-86 | sort | uniq -d | wc -l`
+if [ -z "${duplicates}" ]; then
+
+echo -e "No Duplicate Records Found in Today's EFT File !! \n"
+
+else
+
+#echo "Today's EFT file has the duplicates See duplicate count below"
+
+[ ${Two_Pay_Count} -gt 0 ] && echo "There are ${Two_Pay_Count} Customers made Two payments through new payment portal "
+[ ${Three_Pay_Count} -gt 0 ] && echo -n "and ${Three_Pay_Count} Customers made Three payments through new payment portal "
+[ ${Four_Pay_Count} -gt 0 ] && echo -n "and ${Four_Pay_Count} Customers made FOUR payments through new payment portal "
+[ ${Five_Pay_Count} -gt 0 ] && echo -n "and ${Five_Pay_Count} Customers made FIVE payments through new payment portal "
+
+echo -e "in Today's EFT File and They are as Follows \n $duplicates \n"
+
+fi
+
+echo  "Step 2) Checking the Sum of Amount in Today's EFT File..."
+amount1=`tail -2 ${EFT_File} | head -1 | awk '{print $1}' | cut -c21-32`
+amount2=`tail -1 ${EFT_File} | awk '{print $1}' | cut -c32-43`
+
+[ $amount1 -eq $amount2 ] && echo -e "Sum(Amount) in Today's EFT File is : $amount1 \n"
+
+status=`echo $?`
+if [ $status -ne 0 ]; then
+
+echo -e "Amount not matches and diff amounts are: \n$amount1 \n$amount2"
+
+fi
+
+echo "Step 3) Checking the record count in Today's EFT file..."
+
+Record_Count=`grep ^6 ${EFT_File} | wc -l`
+
+echo -e "The total record count of Today's EFT file is : ${Record_Count}\n"
+
+exit
+
+fi
+
+## End Of The Script ##
+
+
+to get status of job >>
+
+#!/bin/ksh
+. ~/.profile
+log_dir=/apps/cca/ccc/fmsccc2/fmsmidtier/log
+current_date=`date +'%Y-%m-%d'`
+#current_date=`date -d "1 day ago" '+%Y-%m-%d'`
+
+start_time=`grep -i "${current_date}" ${log_dir}/startServerBackground.log | grep -i "Quote Job" | head -1 | cut -d"," -f1 | awk '{print $2}'`
+
+end_time=`grep -i "${current_date}" ${log_dir}/startServerBackground.log | grep -i "Quote Job" | tail -1 | cut -d"," -f1 | awk '{print $2}'`
+
+if [ -z "$start_time" ] && [ -z "$end_time" ]; then
+echo " "
+ #echo "Start_time and End_time are NULL, Which means MT was restarted recently OR Quote job is not Started yet !!"
+echo -e "Quote Job not yet completed.\nMT Team, Please check MT server logs"
+ #echo "So please grep the \"Quote Job\" in archived MT log"
+echo " "
+ else
+echo -e "Quote Job has been completed. Job Start time and End Time is Below:\n"
+echo "start_time = $start_time"
+echo "end_time = $end_time"
+fi
+exit
+
+
+Jmap collect >>
+
+#!/bin/ksh
+
+. ~/.profile
+
+export ChildP=$(ps -ef |grep java |grep ${USER} |grep -v grep | awk '{print$1,$2,$3}' |grep -v " 1$" | awk '{print$2}')
+
+if [ ${ChildP}x != x ]
+then
+echo ${0} STARTED >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+echo >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+
+echo JMAP -heap ${ChildP} - command STARTED >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+date >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+jmap -heap ${ChildP} >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+
+date >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+echo JMAP -heap ${ChildP} - command ENDED >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+
+echo jstat -gcutil -t ${ChildP} 1s 30  - command STARTED >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+date >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+jstat -gcutil -t ${ChildP} 1s 30 >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+
+echo jstat -gcutil -t ${ChildP} 1s 30  - command ENDED >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+date >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+echo ${0} ENDED >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+
+else
+echo ${0} STARTED >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+echo ${USER} MT is not running >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+echo ${0} ENDED >> ~/monitors/collect_jmap_$(date +'%Y%m%d').txt 2>&1
+fi
+
+Job check mail >>
+
+## Author: Y Venkatrami Reddy, ASP Mid-Tier Team.
+## This script will provide an update on Daily Quote Job status.
+## This script will send an automated email once the Quote job has been completed.
+## If any one wants to Update this script. Please write your comments.
+
+#!/bin/ksh
+. ~/.profile
+
+export DateTime=`date +%Y-%m-%d.%H:%M:%S`
+#export DL=DL_Peradigm_ASP_Mid_tier@nttdata.com,Lakshmi.Chintapalli@nttdata.com,John.R.Rodriguez@nttdata.com,Venkatrama.Yarrupu.R@nttdata.com,Shashishekar.Marulai@nttdata.com
+#export DL=Venkatrama.Yarrupu.R@nttdata.com
+export DL=DL_Peradigm_ASP_Database@nttdata.com,DL_Peradigm_ASP_Mid_tier@nttdata.com,DL_Peradigm_ASP_Acct_Coordinators@nttdata.com,DL_HCLS_FMS_operations@nttdata.com,Shashishekar.Marulai@nttdata.com,Charanraj.Annaluru@nttdata.com,Vinay.Shenoi@nttdata.com,Oinam.Sadananda.Sing@nttdata.com,Senthilkumar.Indran@nttdata.com
+export LOG=/apps/cca/prd/fmsprd2/log/QuoteJob_status.log
+export Completion_File=~/etc/Quote_Job_Completion.txt
+export log_dir=/apps/cca/prd/fmsprd2/fmsmidtier/log
+export current_date=`date +'%Y-%m-%d'`
+export status_date=`date +'%Y%m%d`
+export E_NON_CONDITION=55 ## Non of conditions match
+
+while [ 1 ]; do
+Start_Message=$(grep "${current_date}" ${log_dir}/startServerBackground.log | egrep -m 1 'FMSQuoteJobScheduleListener|QuoteFamilyLevelTaskQueue')
+if [ -n ${Start_Message} ]; then
+break
+fi
+done
+Start_Time=$(echo ${Start_Message} | awk '{print $2}' | cut -d',' -f1)
+
+end_time=$(grep -i "${current_date}" ${log_dir}/startServerBackground.log | grep -i "Quote Job" | tail -1 | cut -d"," -f1 | awk '{print $2}')
+
+if [ -n "${end_time}" ]; then
+DATE=$(date '+%s')
+while [ 1 ] ; do
+sleep 10
+end_Hrs=$(grep -i "${current_date}" ${log_dir}/startServerBackground.log | grep -i "Quote Job" | tail -1 | cut -d"," -f1 | awk '{print $2}' | cut -d":" -f1)
+sleep 5
+end_Min=$(grep -i "${current_date}" ${log_dir}/startServerBackground.log | grep -i "Quote Job" | tail -1 | cut -d"," -f1 | awk '{print $2}' | cut -d":" -f2)
+sleep 5
+end_Sec=$(grep -i "${current_date}" ${log_dir}/startServerBackground.log | grep -i "Quote Job" | tail -1 | cut -d"," -f1 | awk '{print $2}' | cut -d":" -f3)
+sleep 5
+THIS=$(date -d "$end_Hrs:$end_Min:$end_Sec" '+%s')
+    if (( $THIS < $DATE )) ; then
+        break
+    fi
+done
+
+complete_time=${end_Hrs}:${end_Min}:${end_Sec}
+#[ -n ${complete_time} ] && echo "${status_date}:SUCCESS" >>
+fi
+
+completion_check=`grep ${status_date} ${Completion_File}`
+if [ "${completion_check}x" != "${status_date}x" ]; then
+
+if [[ -z ${Start_Time} && -z ${end_time} ]]; then
+
+echo -e "${DateTime}\nQuote Job is not Started.\nMT Team, Please check MT apps or myConfig properies file and MT server logs" | mail -s "CCAPRD2:Nightly Jobs Monitoring Alert - Quote Job Status" "${DL}"
+
+elif [[ -n ${Start_Time} && -z ${end_time} ]]; then
+
+echo -e "${DateTime}\n\nQuote Job has been started and  still Running. Job Start time is : ${Start_Time}" | mail -s "CCAPRD2:Nightly Jobs Monitoring Alert - Quote Job Status" "${DL}"
+
+elif [[ -n ${Start_Time} && -n ${complete_time} ]]; then
+
+echo -e "${DateTime}\n\nQuote Job has been completed. Job Start time and End Time is Below:\n start_time=${Start_Time}\nend_time=${complete_time}\n" | mail -s "CCAPRD2:Nightly Jobs Monitoring Alert - Quote Job Status" "${DL}"
+
+echo "${status_date}" > ${Completion_File}
+
+else
+
+exit ${E_NON_CONDITION}
+
+fi
+
+fi
+
+############################################# End Of The Script #############################################
+
+
+#!/bin/ksh
+
+. ~/.profile
+nas_fs=`df -kh | grep '/nasnfs' | awk '{print $4}'`
+boomi_fs=`df -kh | grep '/apps/boomi' | awk '{print $4}'`
+apps_fs=`df -kh | grep '/apps' | grep "apps$" | awk '{print $4}'`
+nas_df_val=`df -kh | grep '/nasnfs' | awk '{print $4}' | sed s/%//`
+boomi_df_val=`df -kh | grep '/apps/boomi' | awk '{print $4}' | sed s/%//`
+apps_df_val=`df -kh | grep '/apps' | grep "apps$" | awk '{print $4}' | sed s/%//`
+
+if [ ${nas_df_val} -gt 75 ]; then
+
+echo "Warning: File system ${nas_fs} size has been reached more than 75%"
+
+else
+
+echo "File system ${nas_fs} looks good!!"
+
+fi
+
+if [ ${boomi_df_val} -gt 75 ]; then
+
+echo "Warning: File system ${boomi_fs} size has been reached more than 75%"
+
+else
+
+echo "File system ${boomi_fs} looks good!!"
+
+fi
+
+if [ ${apps_df_val} -gt 75 ]; then
+
+echo "Warning: File system ${apps_fs} size has been reached more than 75%"
+
+else
+
+echo "File system ${apps_fs} looks good!!"
+
+fi
+
+
+#!/bin/ksh
+. ~/.profile
+DateTime=`date +%Y-%m-%d.%H:%M:%S`
+logfile=/apps/cca/prd/fmsprd2/log/WTS_Monitoring.log
+
+DL=DL-Peradigm-ASP-Mid-tier@Dell.com,DL-Peradigm-ASP-Acct-Coordinators@Dell.com,Shashishekar_Marulai@Dell.com,John_R_Rodriguez@Dell.com,Lakshmi_Chintapalli@Dell.com
+
+export BOOMI_HOME="/apps/boomi"
+export ecrtpuser="ecrtp"
+export ecrtpPW="Cca3ec_rtp"
+export ORACLE_SID="CCAPRD2"
+export WTS_USER="ccaprd2amt"
+export WTSIP="10.91.215.95"
+export MTIP="10.91.216.20"
+
+echo "ecrtpuser=${ecrtpuser}" >>${logfile} 2>&1
+echo "ORACLE_SID=${ORACLE_SID}" >>${logfile} 2>&1
+echo "WTS_USER=${WTS_USER}" >>${logfile} 2>&1
+echo "WTSIP=${WTSIP}" >>${logfile} 2>&1
+echo "MTIP=${MTIP}" >>${logfile} 2>&1
+echo "FILEPARM=${FILEPARM}" >>${logfile} 2>&1
+echo "INPUT=${INPUT}" >>${logfile} 2>&1
+echo "CARRIER=${CARRIER}" >>${logfile} 2>&1
+
+typeset -u WTSLABEL
+export WTSLABEL=${WTS_USER}
+
+VERIFY=$( ssh -p22 ${WTS_USER}@${WTSIP} "cmd /c net use" |grep ${WTSLABEL} | awk '{print $1}' )
+
+if [ "${VERIFY}x" != "OKx" ] ; then
+
+echo " WTS MOUNT IS NOT IN GOOD CONDITION AT ${DateTime}\nMT Team, Please check WTS Connection and mount Manually. "  >>${logfile} 2>&1
+
+echo " WTS MOUNT IS NOT IN GOOD CONDITION AT ${DateTime}\nMT Team, Please check WTS Connection and mount Manually. " | mail -s "CCAPRD2: WTS Connection Monitoring Alert - WTS Connection Status" "${DL}"
+
+#### SAMBA MOUNT REQUEST ####
+#ssh -p22 ${WTS_USER}@${WTSIP} "cmd /c D:\\LINUX\\CheckAndMapUNC.cmd ${MTIP} ${ecrtpuser} ${ecrtpPW} ${WTSLABEL} " >>${logfile} 2>&1
+#RETURN=$?
+#if [ ${RETURN} != 0 ] ; then
+#echo "WTS UNC MOUNT FAILED. RETURNCODE=${RETURN}"
+#echo "WTS UNC MOUNT FAILED. RETURNCODE=${RETURN}" >>${logfile} 2>&1
+#exit ${RETURN}
+#fi
+
+else
+
+echo -e " ${WTSLABEL} is verified as available. ${VERIFY} AT ${DateTime}" >>${logfile} 2>&1
+
+ssh -p22 ${WTS_USER}@${WTSIP} "cmd /c net use " >>${logfile} 2>&1
+
+exit
+
+fi
+
+#!/bin/ksh
+. ~/.profile
+output_file=/apps/cca/prd/fmsprd2/bin/rvenkatr/sar_output.txt
+sar_cmd_op=`sar 1 10 > ${output_file}`
+p_chk=`cat ${output_file} | tail -1 | awk '{print $8}'`
+
+if [ ${p_chk} -le 50 ]; then
+
+echo "MT server performance is not good on $USER NodeA, Please check"
+
+else
+
+echo "MT server looks good on $USER NodeA"
+
+exit
+
+fi
+
+
+
+#!/bin/ksh
+
+. ~/.profile
+log_file=${HOME}/monitors/dashboard/MT/log/ErrorAlert.ksh.log
+MT_Log=$J_HOME/log
+MT_Log_File=$J_HOME/log/startServerBackground.log
+#First_Re=`ls -l startServerBackground.log | awk '{print $8}'`
+#Second_Re=`tail -n '${First_Re}' startServerBackground.log | tail -1`
+#Final_Re=`grep -n '${First_Re}' startServerBackground.log | tail -1 | cut -d":" -f1`
+#Mail_File=${HOME}/bin/rvenkatr/mail_file.txt
+DL=DL-Peradigm-ASP-Mid-tier@Dell.com
+#DL1=Venkatrama_Yarrupu_R@Dell.com
+
+if [ -f ${MT_Log_File} ]; then
+
+echo "MT Log file is exist and Checking the Errors and will Sent Error Alerts >> `date`" >> ${log_file}
+
+
+
+error1=`tail -3000 ${MT_Log_File} | grep OutOfMemoryError | tail -1`
+
+
+#error1_count=`grep OutOfMemoryError ${MT_Log_File} | wc -l`
+
+error2=`tail -3000 ${MT_Log_File} | grep -i "EXCEPTION: Task Execution Failed" | tail -1`
+#error2_count=`grep -i "EXCEPTION: Task Execution Failed" ${MT_Log_File} | wc -l`
+
+error3=`tail -3000 ${MT_Log_File} | grep -i "EJBTransactionRolledbackException" | tail -1`
+#error3_count=`grep -i "EJBTransactionRolledbackException" ${MT_Log_File} | wc -l`
+
+error4=`tail -3000 ${MT_Log_File} | grep -i "Connection reset" | tail -1`
+#error4_count=`grep -i "Connection reset" ${MT_Log_File} | wc -l`
+
+error5=`tail -3000 ${MT_Log_File} | grep -i "Connection failure has been detected" | tail -1`
+error6=`tail -3000 ${MT_Log_File} | grep -i "ResourceException cleaning up managed connection" | tail -1`
+##error5_count=`egrep -i "Connection failure has been detected:|ResourceException cleaning up managed connection:" ${MT_Log_File} | wc -l`
+
+if [ ! -z "${error1}" ]; then
+
+echo -e "Hi MT Team,\n\nPlease See Error Below >> \n\n${error1}" | mail -s "$USER Node A MT ERROR ALERT: OutOfMemoryError !!" "${DL}"
+
+fi
+
+if [ ! -z "${error2}" ]; then
+
+echo -e "Hi MT Team,\n\nPlease See Error Below >> \n\n${error2}" | mail -s "$USER Node A MT ERROR ALERT : EXCEPTION: Task Execution Failed" "${DL}"
+
+fi
+
+if [ ! -z "${error3}" ]; then
+
+echo -e "Hi MT Team,\n\nPlease See Error Below >> \n\n${error3}" | mail -s "$USER Node A MT ERROR ALERT: EJBTransactionRolledbackException" "${DL}"
+
+fi
+
+if [ ! -z "${error4}" ]; then
+
+echo -e "Hi MT Team,\n\nPlease See Error Below >> \n\n${error4}" | mail -s "$USER Node A MT ERROR ALERT: Caused by: Connection reset" "${DL}"
+
+fi
+
+if [ ! -z "${error5}" ]; then
+
+echo -e "Hi MT Team,\n\nPlease See Error Below >> \n\n${error5}" | mail -s "$USER Node A MT ERROR ALERT: Connection failure has been detected" "${DL}"
+
+fi
+
+if [ ! -z "${error6}" ]; then
+
+echo -e "Hi MT Team,\n\nPlease See Error Below >> \n\n${error6}" | mail -s "$USER Node A MT ERROR ALERT: ResourceException cleaning up managed connection" "${DL}"
+
+fi
+
+## OR
+
+## if [ -n ${error2} -o -n ${error2} -o -n ${error3} -o -n ${error4} ]; then
+## cat "~/bin/rvenkatr/mail_file.txt" | mail -s "$USER MT ERROR ALERT: Critical error hit on Node A MT logs" "DL-Xcelys-CM-Apps@dell.com"
+## fi
+##
+
+echo "Job Has been Completed at `date`" >> ${log_file}
+else
+
+echo "MT Log File does not exist. Looks MT is under Installation-- Wait untill MT Installation is Complete >> `date`" >> ${log_file}
+
+exit
+
+fi
+
+
+
+#!/bin/ksh
+. ~/.profile
+MY_DATE=`date +%Y-%m-%d`
+XML_IN_DIR=/apps/cca/prd/fmsprd2/tradingPartnerRoot/HCENTIVE/XMLin_archive
+RESPONSE_DIR=/apps/cca/prd/fmsprd2/tradingPartnerRoot/HCENTIVE/XMLinResponse
+LOG_FILE=~/log/$(basename ${0})_${MY_DATE}.log
+for eachentry in `cat /tmp/temp_venkar/control_numbers.txt`
+do
+xml_file=`ls $XML_IN_DIR/hCentive_*${eachentry}*.xml`
+echo "Looking for XML file. The XML file is : ${xml_file}" >> ${LOG_FILE}
+xml_responsefile=`ls $RESPONSE_DIR/hCentive_*${eachentry}*.xml`
+if [ -e ${xml_responsefile} ]; then
+echo "The Response file has generated for XML : ${xml_file}" >> ${LOG_FILE}
+echo "XML Response file : ${xml_responsefile}" >> ${LOG_FILE}
+else
+echo "FAILURE:The Response file has not generated for XML : ${xml_file}" >> ${LOG_FILE}
+fi
+
+check1=`egrep 'ResponseCode|ResponseDescriptionText' ${xml_responsefile} | sort | uniq -c | awk '{print$1}' | head -1`
+check2=`egrep 'ResponseCode|ResponseDescriptionText' ${xml_responsefile} | sort | uniq -c | awk '{print$1}' | tail -1`
+
+if [ `egrep 'ResponseCode|ResponseDescriptionText' ${xml_responsefile} | sort | uniq -c | wc -l` -eq 2 ] && [ ${check1} -eq ${check2} ] ; then
+Success_count=`egrep 'ResponseCode|ResponseDescriptionText' ${xml_responsefile} | sort | uniq -c | awk '{print$1}' | uniq`
+egrep 'ResponseCode|ResponseDescriptionText' ${xml_responsefile} | sort | uniq -c >> ${LOG_FILE}
+echo "SUCCESS:${Success_count} Success Transactions were Stored into the staging table" >> ${LOG_FILE}
+else
+echo "FAILURE: Seems the XML file : ${xml_file} got the partial response" >> ${LOG_FILE}
+fi
+done
+
+
+
+
+#!/bin/ksh
+. ~/.profile
+SetParam() {
+export URLFILE=~/bin/rvenkatr/urllist.txt
+export MY_DATE_TIME=`date +%d-%m-%Y_%H.%M.%S`
+export MY_DATE=`date +%Y-%m-%d`
+export mytodate=`date +%m-%d-%Y`
+export previous=`date --date="yesterday" +"%Y-%m-%d"`
+#export currentdate=`date +"%m/%d/%Y"`
+export class_path=/apps/cca/prd/fmsprd2/monitors/dashboard/MT
+export URL_COUNT=`cat ${URLFILE} | wc -l`
+export dbuser=$( grep -v ^# ~/config/myConfig.properties |grep database.user= | cut -d = -f2 )
+export dbpasswd=$( grep -v ^# ~/config/myConfig.properties |grep database.password= | cut -d = -f2 )
+SAFE_STATUSCODES=( 200 201 202 203 204 205 206 207 208 226 401 )
+export STATUS_UP=`echo -e "\E[32m[ RUNNING ]\E[0m"`
+export STATUS_DOWN=`echo -e "\E[31m[ DOWN ]\E[0m"`
+export DL="Venkatrama.Yarrupu.R@nttdata.com ##,Lakshmi.Chintapalli@nttdata.com,John.R.Rodriguez@nttdata.com,DL_Peradigm_ASP_Mid_tier@nttdata.com"
+export LOG_FILE=~/log/URLS_Monitoring_${MY_DATE}.log
+export DASHBOARD_INFO_LOG=~/log/URLS_Monitoring_${previous}.log
+}
+
+URL_Status() {
+
+SetParam
+sed -i '/^$/d' $URLFILE; #To Parse the URLFILE for removal of blank rows
+cat ${URLFILE} | while read next
+do
+#STATUS_CODE=`curl --insecure --output /dev/null --silent --head --write-out '%{http_code}\n' $next`
+STATUS_CODE=`curl --insecure -w "%{http_code}\n" -s -o /dev/null -X POST -b cookies-2.txt -c cookies-2.txt -d "username=${dbuser}&password=${dbpasswd}&Login=Login" ${next}`
+# If you want to set a timeout then add --max-time 15, here 15 is 15seconds
+
+case ${STATUS_CODE} in
+
+100) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Continue" ;;
+101) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Switching Protocols" ;;
+102) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Processing (WebDAV) (RFC 2518) " ;;
+103) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Checkpoint" ;;
+122) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Request-URI too long" ;;
+200) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : OK" ;;
+201) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Created" ;;
+202) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Accepted" ;;
+203) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Non-Authoritative Information" ;;
+204) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : No Content" ;;
+205) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Reset Content" ;;
+206) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Partial Content" ;;
+207) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Multi-Status (WebDAV) (RFC 4918) " ;;
+208) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Already Reported (WebDAV) (RFC 5842) " ;;
+226) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : IM Used (RFC 3229) " ;;
+300) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Multiple Choices" ;;
+301) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Moved Permanently" ;;
+302) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Found" ;;
+303) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : See Other" ;;
+304) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Not Modified" ;;
+305) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Use Proxy" ;;
+306) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Switch Proxy" ;;
+307) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Temporary Redirect (since HTTP/1.1)" ;;
+308) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Resume Incomplete" ;;
+400) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Bad Request" ;;
+401) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Unauthorized" ;;
+402) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Payment Required" ;;
+403) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Forbidden" ;;
+404) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Not Found" ;;
+405) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Method Not Allowed" ;;
+406) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Not Acceptable" ;;
+407) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Proxy Authentication Required" ;;
+408) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Request Timeout" ;;
+409) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Conflict" ;;
+410) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Gone" ;;
+411) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Length Required" ;;
+412) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Precondition Failed" ;;
+413) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Request Entity Too Large" ;;
+414) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Request-URI Too Long" ;;
+415) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Unsupported Media Type" ;;
+416) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Requested Range Not Satisfiable" ;;
+417) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Expectation Failed" ;;
+500) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Internal Server Error" ;;
+501) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Not Implemented" ;;
+502) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Bad Gateway" ;;
+503) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Service Unavailable" ;;
+504) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : Gateway Timeout" ;;
+505) echo "At ${MY_DATE_TIME}: ${next} url status returned $STATUS_CODE : HTTP Version Not Supported" ;;
+esac
+
+URL_SafeStatus ${STATUS_CODE}
+
+done;
+
+}
+
+URL_SafeStatus() {
+flag=0
+for safestatus in ${SAFE_STATUSCODES[@]}
+do
+if [ $1 -eq ${safestatus} ] ; then
+echo "At ${MY_DATE_TIME}: Status Of  URL ${next} = ${STATUS_UP}"; >> ${LOG_FILE}
+flag=1
+break;
+fi
+done
+if [ $flag -ne 1 ] ; then
+echo "At ${MY_DATE_TIME}: Status Of  URL ${next} = ${STATUS_DOWN}" | Mail_Admin ${MY_DATE_TIME} ${next}
+echo "At ${MY_DATE_TIME}: Status Of  URL ${next} = ${STATUS_DOWN}" >>  ${LOG_FILE}
+break;
+fi
+}
+
+Mail_Admin() {
+SetParam
+echo "At $1 URL $2 is DOWN!!" | mailx -s "MidTier Application URL: $2 is DOWN!!!" ${DL}
+}
+
+
+Dashboard_Alert() {
+SetParam
+. /apps/cca/per/fmsper2/monitors/dashboard/myEnv.sh
+DATE=$(date '+%s')
+THIS=$(date -d "17:50:00" '+%s')
+THIS_LIMIT=$(date -d "18:55:00" '+%s')
+if [[ ${DATE} -ge ${THIS} && ${DATE} -lt ${THIS_LIMIT} ]]; then
+#dashboard_chklmt=`expr ${URL_COUNT} \* 288`
+dashboard_chklmt=288
+for eachurl in $(cat ${URLFILE})
+do
+count=`grep ${eachurl} ${DASHBOARD_INFO_LOG} | grep RUNNING | wc -l`
+if [ ${count} -eq ${dashboard_chklmt} ]
+then
+  value=0
+elif [[ ${count} -lt ${dashboard_chklmt} && ${count} -gt 0 ]]
+then
+  value=1
+elif [ ${count} -eq 0 ]
+then
+  value=2
+fi
+
+cd ${class_path}
+
+java SaveMonitoringDetails1 ${mytodate} ${value}
+
+done
+fi
+}
+
+Main_Menu() {
+URL_Status
+Dashboard_Alert
+}
+SetParam
+Main_Menu >> ${LOG_FILE}
+
+################################ End Of the Script #########################

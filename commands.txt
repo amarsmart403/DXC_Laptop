@@ -1,0 +1,59 @@
+echo "TEST MAIL" | mail -s "TEST MAIL" amarnath.m4@nttdata.com
+ps -ef |grep Scan_MTLogExtracts.ksh | grep -v grep | awk '{print$2}' | xargs -i kill -9 {}
+
+to replace multiple words
+:%s/amar/linux/g
+to get perticular lines in file>>
+cat -n filename | sed -n '3,6p'
+mv `ls -tr *.xml | head -500` ../
+find . -name 'Hello*.gz' | head -n 5000 | xargs -I {} mv {} /data01/path/ 
+find . -name '*.xml' | head -5 | xargs -I {} -exec rm -rf {}\;
+find . -name '*.xml' | head -5 | xargs -exec rm -rf {}/;
+rm `ls -tr | head -5`
+touch {1..10}.xml (to create 10 files at a time)
+rm -rf {1..10}.xml (to delete 10 files at a time)
+echo "amar akbar antony" | tr ' ' '\n'
+echo "amar akbar antony" | tr ' ' '\n' | xargs -I {} mkdir {}
+cat test.txt | xargs -I {} mkdir {}/;
+cat test.txt | xargs mkdir {}/; ({} alos be created)
+xargs -I {} mkdir -p "{}" < test.txt
+find / -maxdepth 2 -name passwd ( it searches for the file until 2 subdirectories)
+find / -maxdepth 1 -name passwd ( it searches for the file until 1 subdirectories)
+find / -maxdepth 3 -name passwd ( it searches for the file until 3 subdirectories including 1 & 2)
+
+
+cd /apps/hne/prd/hneprd/tradingPartnerRoot/ClaimsNet/ && find . -type d -exec mkdir -p /apps/hne/prd/hneprd/tradingPartnerRoot/MayInstitute{} \;
+
+grep START $( grep -li 'missing expression' *20190131* | grep Hist2 | xargs ) | cut -d"|" -f6 | cut -d"=" -f2 > /tmp/temp_venkar/Hist2_rerun.txt
+
+https://geekflare.com/san-ssl-certificate/
+https://tecadmin.net/simple-steps-to-generate-csr-on-centos/
+
+openssl req -out sslcert.csr -newkey rsa:2048 -nodes -keyout private.key -config san.cnf
+
+openssl req -noout -text -in sslcert.csr | grep DNS
+
+openssl req -new -newkey rsa:2048 -nodes -keyout tecadmin.net.key  -out tecadmin.net.csr
+
+
+
+CCA Certificates:
+
+keytool -list -v -keystore keystore.jks -storepass max5:blocks 
+keytool -list -v -keystore server.keystore -storepass servercert
+keytool -list -v -keystore server.truststore -storepass servercert
+password - servercert
+
+
+keytool -list -keystore keystore.jks -storepass max5:blocks 
+keytool -list -keystore server.truststore -storepass servercert 
+keytool -delete -keystore keystore.jks -storepass max5:blocks -alias cpcm-google 
+keytool -delete -keystore server.truststore -storepass servercert -alias cpcm-google 
+keytool -import -keystore keystore.jks -storepass max5:blocks -alias cpcm-google -file google.crt.2015_04_01 
+
+keytool -import -keystore server.truststore -storepass servercert -alias cpcm-google -file google.crt.2015_04_01
+
+to display the file modified time stamp
+date -r filename
+diff -c file1 file2
+diff -y file1 file2

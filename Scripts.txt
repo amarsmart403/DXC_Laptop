@@ -1,0 +1,57 @@
+#!/bin/ksh
+TP_Root=/apps/cca/prd/fmsprd2/tradingPartnerRoot/FMS
+#carrier=FMS
+EFT_Dir=EDIout
+EFT_Archive_Dir=archive
+search_date=`date +'%m%d%Y`
+EFT_File=${TP_Root}/${EFT_Dir}/EFT_${search_date}_*.txt
+echo -e "\v##################### DAILY EFT FILE LEVEL VALIDATION ######################### \v\v"
+if [ -f ${EFT_File} ]; then
+
+echo -e "Today's EFT Job has been Completed, and also EFT file is available in ${TP_Root}/${EFT_Dir}\n"
+
+else
+
+echo -e "\v##### Today's EFT file is not available in EDIout directory, you may check it in archive ######\v\v"
+
+exit
+
+fi
+
+echo "Step 1) Checking the Duplicates in Today's EFT File..."
+
+#duplicates=`grep ^6 ${TP_Root}/${EFT_Dir}/${EFT_File} | sort | uniq -d`
+duplicates=`grep ^6 ${EFT_File} | cut -c4-86 | sort | uniq -d`
+duplicate_count=`grep ^6 ${EFT_File} | cut -c4-86 | sort | uniq -d | wc -l`
+if [ -z "${duplicates}" ]; then
+
+echo -e "No Duplicate Records Found in EFT File !! \n"
+
+else
+
+#echo "Today's EFT file has the duplicates See duplicate count below"
+
+echo -e "Found ${duplicate_count} EFT File Duplicate Records in Today's EFT File and they are as below \n $duplicates"
+
+fi
+
+echo  "Step 2) Cheching the Sum of Amount in Today's EFT File..."
+amount1=`tail -2 ${EFT_File} | head -1 | awk '{print $1}' | cut -c21-32`
+amount2=`tail -1 ${EFT_File} | awk '{print $1}' | cut -c32-43`
+
+[ $amount1 -eq $amount2 ] && echo -e "Sum(Amount) in TOday's EFT File is :\n $amount1"
+
+status=`echo $?`
+if [ $status -ne 0 ]; then
+
+echo -e "Amount not matches and diff amounts are: \n$amount1 \n$amount2"
+
+fi
+
+echo "Step 3) Checking the record count in Today's EFT file..."
+
+Record_Count=`grep ^6 ${EFT_File} | wc -l`
+
+echo -e "The record count of EFT file is : ${Record_Count}\n"
+
+exit

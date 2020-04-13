@@ -1,0 +1,27 @@
+#!/bin/ksh
+
+. ~/.profile
+
+JBOSS_PID=$( ps -fu $USER | grep java | grep -v grep | cut -c1-20 | awk '{print $2}' )
+
+if [ "${JBOSS_PID}x" != 'x' ] ; then
+        echo "Stopping the MT for ${USER}..."
+        echo ${JBOSS_PID} | xargs kill -9
+        sleep 30
+fi
+
+if [ "${JBOSS_PID}x" = 'x' ] ; then
+        echo "xCelys MT stoppped for ${USER}."
+fi
+
+sleep 30
+
+echo "Starting MT for ${USER}..."
+cd /asp/nmhst/nammdev1/CS/csmt/bin
+./startServerBackground.sh
+echo
+sleep 2m
+echo "xCelys MT started."
+echo
+stchk
+echo
